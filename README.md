@@ -1,12 +1,12 @@
 http://cs234.stanford.edu/
 
-Set up instructions <br/>
+## Set up instructions
 cd assignment1 <br/>
 sudo pip install virtualenv      # This may already be installed <br/>
 virtualenv .env                  # Create a virtual environment <br/>
 source .env/bin/activate         # Activate the virtual environment <br/>
 pip install -r requirements.txt  # Install dependencies <br/>
- ### install gym
+### Install Gym
 git clone https://github.com/openai/gym
 cd gym
 pip install -e . # minimal install
