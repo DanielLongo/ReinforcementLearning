@@ -34,9 +34,28 @@ def policy_evaluation(P, nS, nA, policy, gamma=0.9, max_iteration=1000, tol=1e-3
 		The value function from the given policy.
 	"""
 	############################
-	# YOUR IMPLEMENTATION HERE #
+	V = np.zeros(nS)
+	prev_V = np.copy(V)
+	curr_tol = 1
+	i = 0
+	while i <= max_iteration and curr_tol >= tol:
+		for s in range(nS):
+
+			for a in P[s][policy[s]]:
+				prob, next_state, reward, _ = a
+				print("next state", next_state)
+				Q = prob * (reward +  gamma * prev_V[next_state]) ############ NEXT StATE
+
+			V[s] = Q
+
+		curr_tol = np.abs(V - prev_V).max()
+		prev_V = np.copy(V)
+		i += 1
+
+
 	############################
-	return np.zeros(nS)
+	# return np.zeros(nS)
+	return V
 
 
 def policy_improvement(P, nS, nA, value_from_policy, policy, gamma=0.9):
@@ -67,19 +86,27 @@ def policy_improvement(P, nS, nA, value_from_policy, policy, gamma=0.9):
 	"""
 	############################
 	new_policy = np.zeros(nS, dtype="int")
+	V = np.zeros((nS, nA), dtype="float")
 	for s in range(nS):
 		for a in range(nA):
-			curr_reward = P[s][a][2]
-			future_reward = 0
-			for sp in range(nS):
-				sp_transition_prob = P[s][a][0]
-				future_reward += sp_transition_prob * value_from_policy[sp]
-			future_reward *= gamma
-			curr_Q = curr_reward + future_reward
+			curr_prob, curr_ns, curr_reward, _ = P[s][a][0]
+			curr_Q = curr_prob * (curr_reward + gamma * value_from_policy[curr_ns])
+			V[s, a] = curr_Q
+
+	new_policy = V.argmax(axis=1)
+
+			# future_reward = 0
+
+			# for sp in range(nS):
+				# sp_transition_prob = P[s][a][0]
+				# future_reward += sp_transition_prob * value_from_policy[sp]
+			# future_reward *= gamma
+			# curr_Q = curr_reward + future_reward
 
 
 	############################
-	return np.zeros(nS, dtype='int')
+	# return np.zeros(nS, dtype='int')
+	return new_policy
 
 
 def policy_iteration(P, nS, nA, gamma=0.9, max_iteration=20, tol=1e-3):
@@ -114,15 +141,15 @@ def policy_iteration(P, nS, nA, gamma=0.9, max_iteration=20, tol=1e-3):
 	policy = np.random.choice(range(nA), nS)
 	prev_policy = np.random.choice(range(nA), nS)
 	i = 0 
-	while i == 0 or (np.abs(prev_policy, policy) > 0):
-		value_from_policy = policy_evaluation(P, nS, nA, policy)
+	while (i == 0) or (np.abs(prev_policy, policy).all() > 0):
 		i += 1
+		value_from_policy = policy_evaluation(P, nS, nA, policy)
 		prev_policy = policy
 		policy = policy_improvement(P, nS, nA, value_from_policy, prev_policy)
-		#TODO find relaitonship between V and value from policy
+	V = policy_evaluation(P, nS, nA, policy)
 	############################
 
-	print("v", v.shape, "policy", policy.shape)
+	print("v", V.shape, "policy", policy.shape)
 
 	return V, policy
 
@@ -204,15 +231,16 @@ def render_single(env, policy):
 			break
 	assert done
 	env.render();
-	print "Episode reward: %f" % episode_reward
+	# print "Episode reward: %f" % episode_reward
+	print("Episode reward:", episode_reward)
 
 
 # Feel free to run your own debug code in main!
 # Play around with these hyperparameters.
 if __name__ == "__main__":
 	env = gym.make("Deterministic-4x4-FrozenLake-v0")
-	print env.__doc__
-	print "Here is an example of state, action, reward, and next state"
+	print(env.__doc__)
+	print("Here is an example of state, action, reward, and next state")
 	example(env)
 	V_vi, p_vi = value_iteration(env.P, env.nS, env.nA, gamma=0.9, max_iteration=20, tol=1e-3)
 	V_pi, p_pi = policy_iteration(env.P, env.nS, env.nA, gamma=0.9, max_iteration=20, tol=1e-3)
