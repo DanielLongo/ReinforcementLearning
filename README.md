@@ -1,6 +1,6 @@
 http://cs234.stanford.edu/
 
-Set up instructions
+Set up instructions <br/>
 cd assignment1
 sudo pip install virtualenv      # This may already be installed
 virtualenv .env                  # Create a virtual environment
