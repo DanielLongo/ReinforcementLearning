@@ -66,7 +66,18 @@ def policy_improvement(P, nS, nA, value_from_policy, policy, gamma=0.9):
 		given value function.
 	"""
 	############################
-	# YOUR IMPLEMENTATION HERE #
+	new_policy = np.zeros(nS, dtype="int")
+	for s in range(nS):
+		for a in range(nA):
+			curr_reward = P[s][a][2]
+			future_reward = 0
+			for sp in range(nS):
+				sp_transition_prob = P[s][a][0]
+				future_reward += sp_transition_prob * value_from_policy[sp]
+			future_reward *= gamma
+			curr_Q = curr_reward + future_reward
+
+
 	############################
 	return np.zeros(nS, dtype='int')
 
@@ -100,9 +111,21 @@ def policy_iteration(P, nS, nA, gamma=0.9, max_iteration=20, tol=1e-3):
 	V = np.zeros(nS)
 	policy = np.zeros(nS, dtype=int)
 	############################
-	# YOUR IMPLEMENTATION HERE #
+	policy = np.random.choice(range(nA), nS)
+	prev_policy = np.random.choice(range(nA), nS)
+	i = 0 
+	while i == 0 or (np.abs(prev_policy, policy) > 0):
+		value_from_policy = policy_evaluation(P, nS, nA, policy)
+		i += 1
+		prev_policy = policy
+		policy = policy_improvement(P, nS, nA, value_from_policy, prev_policy)
+		#TODO find relaitonship between V and value from policy
 	############################
+
+	print("v", v.shape, "policy", policy.shape)
+
 	return V, policy
+
 
 def value_iteration(P, nS, nA, gamma=0.9, max_iteration=20, tol=1e-3):
 	"""
