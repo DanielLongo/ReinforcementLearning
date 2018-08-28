@@ -28,7 +28,7 @@ def policy_evaluation(P, nS, nA, policy, gamma=0.9, max_iteration=1000, tol=1e-3
 		The maximum number of iterations to run before stopping. Feel free to change it.
 	tol: float
 		Determines when value function has converged.
-	Returns
+	Returnsv
 	-------
 	value function: np.ndarray
 		The value function from the given policy.
@@ -43,7 +43,6 @@ def policy_evaluation(P, nS, nA, policy, gamma=0.9, max_iteration=1000, tol=1e-3
 
 			for a in P[s][policy[s]]:
 				prob, next_state, reward, _ = a
-				print("next state", next_state)
 				Q = prob * (reward +  gamma * prev_V[next_state]) ############ NEXT StATE
 
 			V[s] = Q
@@ -86,26 +85,19 @@ def policy_improvement(P, nS, nA, value_from_policy, policy, gamma=0.9):
 	"""
 	############################
 	new_policy = np.zeros(nS, dtype="int")
-	V = np.zeros((nS, nA), dtype="float")
 	for s in range(nS):
+		max_Q, max_a = -1, -1
 		for a in range(nA):
-			curr_prob, curr_ns, curr_reward, _ = P[s][a][0]
-			curr_Q = curr_prob * (curr_reward + gamma * value_from_policy[curr_ns])
-			V[s, a] = curr_Q
-
-	new_policy = V.argmax(axis=1)
-
-			# future_reward = 0
-
-			# for sp in range(nS):
-				# sp_transition_prob = P[s][a][0]
-				# future_reward += sp_transition_prob * value_from_policy[sp]
-			# future_reward *= gamma
-			# curr_Q = curr_reward + future_reward
-
+			next_state_tups = P[s][a]
+			for tup in next_state_tups:
+				curr_prob, curr_ns, curr_reward, _ = tup
+				curr_Q = curr_prob * (curr_reward + gamma * value_from_policy[curr_ns])
+				if curr_Q > max_Q:
+					max_Q = curr_Q
+					max_a = a
+		new_policy[s] = max_a
 
 	############################
-	# return np.zeros(nS, dtype='int')
 	return new_policy
 
 
@@ -182,7 +174,24 @@ def value_iteration(P, nS, nA, gamma=0.9, max_iteration=20, tol=1e-3):
 	V = np.zeros(nS)
 	policy = np.zeros(nS, dtype=int)
 	############################
-	# YOUR IMPLEMENTATION HERE #
+	V_prev = V
+	k = 1
+	while(k < max_iteration or np.abs(V, V_prev) < tol):
+		V_prev = V
+		for s in range(nS):
+			max_Q, max_a = -1, -1
+			for a in range(nA):
+				next_state_tups = P[s][a]
+				curr_Q = 0
+				for tup in next_state_tups:
+					prob, r, next_state, _ = tup
+					curr_Q += prob*(r + gamma * V[next_state])
+				if curr_Q > max_Q:
+					max_Q = curr_Q
+					max_a = a
+			V[s] = max_Q
+			policy[s] = max_a
+		k += 1
 	############################
 	return V, policy
 
