@@ -129,3 +129,4 @@ class FrozenLakeEnv(discrete_env.DiscreteEnv):
         outfile.write("\n".join(''.join(line) for line in desc)+"\n")
 
         return outfile
+

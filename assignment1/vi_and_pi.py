@@ -176,7 +176,7 @@ def value_iteration(P, nS, nA, gamma=0.9, max_iteration=20, tol=1e-3):
 	############################
 	V_prev = V
 	k = 1
-	while(k < max_iteration or np.abs(V, V_prev) < tol):
+	while(k < max_iteration or np.abs(V, V_prev).all() < tol):
 		V_prev = V
 		for s in range(nS):
 			max_Q, max_a = -1, -1
@@ -185,7 +185,8 @@ def value_iteration(P, nS, nA, gamma=0.9, max_iteration=20, tol=1e-3):
 				curr_Q = 0
 				for tup in next_state_tups:
 					prob, r, next_state, _ = tup
-					curr_Q += prob*(r + gamma * V[next_state])
+					assert(next_state == int(next_state))
+					curr_Q += prob * (r + gamma * V[int(next_state)])
 				if curr_Q > max_Q:
 					max_Q = curr_Q
 					max_a = a
